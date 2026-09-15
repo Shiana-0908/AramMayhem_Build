@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  html{color-scheme:light dark}
+  :root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none !important}
+</style>
+<title>Lối Lên Đồ Hỗn Loạn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#EDF1F4; --panel:#F8FAFB; --raise:#FFFFFF;
+  --ink:#14202B; --muted:#5B6D7B; --faint:#8899A6;
+  --line:#CDD8E0; --line-soft:#E1E9EE;
+  --brass:#946C15; --brass-soft:#EFE3C7;
+  --ad:#AF4A33; --ad-soft:#F6E2DC;
+  --ap:#5D54B8; --ap-soft:#E4E1F6;
+  --ok:#1F6E5B; --ok-soft:#DCEFE8;
+  --warn:#9A5A08; --warn-soft:#F7E7D2;
+  --shadow:0 1px 2px rgba(20,32,43,.07), 0 8px 22px -14px rgba(20,32,43,.35);
+  --serif:'Times New Roman', Tinos, 'Liberation Serif', Georgia, serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B131A; --panel:#121E27; --raise:#17242F;
+    --ink:#E7EEF3; --muted:#93A6B4; --faint:#6C808F;
+    --line:#26363F; --line-soft:#1D2B35;
+    --brass:#D8AC52; --brass-soft:#31281531;
+    --ad:#E68465; --ad-soft:#3A201A;
+    --ap:#A197EC; --ap-soft:#251F3D;
+    --ok:#63C6A6; --ok-soft:#14302A;
+    --warn:#E0A054; --warn-soft:#33240F;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B131A; --panel:#121E27; --raise:#17242F;
+  --ink:#E7EEF3; --muted:#93A6B4; --faint:#6C808F;
+  --line:#26363F; --line-soft:#1D2B35;
+  --brass:#D8AC52; --brass-soft:#31281531;
+  --ad:#E68465; --ad-soft:#3A201A;
+  --ap:#A197EC; --ap-soft:#251F3D;
+  --ok:#63C6A6; --ok-soft:#14302A;
+  --warn:#E0A054; --warn-soft:#33240F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--serif); font-size:17px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:18px; padding-block:26px 64px}
+
+/* ---------- header ---------- */
+.masthead{
+  border-bottom:2px solid var(--brass); padding-bottom:14px; margin-bottom:22px;
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 20px; justify-content:space-between;
+}
+.eyebrow{
+  font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--brass); margin:0 0 4px;
+}
+h1{
+  font-size:clamp(30px,5.2vw,44px); line-height:1.05; margin:0; text-wrap:balance;
+  font-weight:700; letter-spacing:-.01em;
+}
+.sub{margin:6px 0 0; color:var(--muted); font-size:15.5px; max-width:56ch}
+.mast-actions{display:flex; gap:10px; align-items:center}
+
+button{font-family:var(--serif); font-size:15px; cursor:pointer}
+.btn{
+  background:var(--raise); color:var(--ink); border:1px solid var(--line);
+  border-radius:3px; padding:7px 14px; transition:border-color .15s, color .15s;
+}
+.btn:hover{border-color:var(--brass); color:var(--brass)}
+.btn:focus-visible, .slot:focus-visible, .champ-btn:focus-visible, input:focus-visible{
+  outline:2px solid var(--brass); outline-offset:2px;
+}
+
+/* ---------- layout ---------- */
+.cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.12fr); gap:26px; align-items:start}
+@media (max-width:900px){ .cols{grid-template-columns:1fr; gap:22px} }
+
+.panel{background:var(--panel); border:1px solid var(--line-soft); border-radius:4px; padding:18px}
+.panel + .panel{margin-top:18px}
+
+h2{
+  font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  margin:0 0 12px; font-weight:700;
+}
+h3{font-size:19px; margin:0 0 8px; font-weight:700}
+
+/* ---------- slots ---------- */
+.slot-row{display:flex; flex-wrap:wrap; gap:8px}
+.slot{
+  flex:1 1 92px; min-width:0; text-align:left; background:var(--raise);
+  border:1px solid var(--line); border-radius:3px; padding:9px 10px;
+  color:var(--ink); font-size:15px; line-height:1.25; transition:border-color .15s, background .15s;
+}
+.slot .lbl{display:block; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:3px}
+.slot .val{display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700}
+.slot .val.empty{font-weight:400; color:var(--faint); font-style:italic}
+.slot[aria-pressed="true"]{border-color:var(--brass); background:var(--brass-soft)}
+.slot.mine{flex:1 1 100%}
+.slot.mine .val{color:var(--brass)}
+
+.search{
+  width:100%; margin-top:14px; padding:9px 11px; font-size:16px; font-family:var(--serif);
+  background:var(--raise); color:var(--ink); border:1px solid var(--line); border-radius:3px;
+}
+.hint{font-size:13.5px; color:var(--faint); margin:8px 0 0}
+
+.champ-list{
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;
+  max-height:290px; overflow-y:auto; padding-right:4px;
+}
+.champ-btn{
+  background:var(--raise); border:1px solid var(--line-soft); border-radius:3px;
+  padding:4px 9px; font-size:14.5px; color:var(--ink); white-space:nowrap;
+}
+.champ-btn:hover{border-color:var(--brass); color:var(--brass)}
+.champ-btn .tag{font-size:11px; color:var(--faint); margin-left:5px}
+.champ-btn.taken{opacity:.38}
+
+/* ---------- threat meter ---------- */
+.meter{margin:0 0 4px}
+.meter-bar{display:flex; height:22px; border-radius:2px; overflow:hidden; border:1px solid var(--line-soft)}
+.meter-ad{background:var(--ad)}
+.meter-ap{background:var(--ap)}
+.meter-legend{
+  display:flex; justify-content:space-between; font-size:13.5px; margin-top:6px;
+  font-variant-numeric:tabular-nums; color:var(--muted);
+}
+.meter-legend b{color:var(--ink)}
+
+.chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:14px}
+.chip{
+  font-size:13.5px; padding:3px 9px; border-radius:2px; border:1px solid var(--line-soft);
+  background:var(--raise); color:var(--muted); font-variant-numeric:tabular-nums;
+}
+.chip b{color:var(--ink)}
+.chip.hot{border-color:var(--warn); background:var(--warn-soft); color:var(--warn)}
+.chip.hot b{color:var(--warn)}
+
+/* ---------- build ---------- */
+.step{
+  display:flex; gap:13px; padding:13px 0; border-top:1px solid var(--line-soft);
+}
+.step:first-of-type{border-top:0; padding-top:4px}
+.step-n{
+  flex:0 0 27px; height:27px; border-radius:50%; border:1px solid var(--brass); color:var(--brass);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+  font-variant-numeric:tabular-nums; margin-top:2px;
+}
+.step-n.boot{border-style:dashed}
+.step-body{min-width:0; flex:1}
+.step-name{font-size:19px; font-weight:700; line-height:1.25}
+.step-meta{font-size:13.5px; color:var(--faint); font-variant-numeric:tabular-nums; margin-top:1px}
+.why{margin:7px 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:6px}
+.why li{
+  font-size:13.5px; padding:2px 8px; border-radius:2px;
+  background:var(--ok-soft); color:var(--ok); border:1px solid transparent;
+}
+.why li.ad{background:var(--ad-soft); color:var(--ad)}
+.why li.ap{background:var(--ap-soft); color:var(--ap)}
+.why li.must{background:var(--warn-soft); color:var(--warn); font-weight:700}
+
+.alt{display:grid; grid-template-columns:1fr; gap:9px}
+.alt-item{
+  border:1px solid var(--line-soft); border-radius:3px; background:var(--raise);
+  padding:10px 12px; min-width:0;
+  display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:14px; align-items:baseline;
+}
+.alt-item .n{grid-column:1; font-size:18px}
+.alt-item .g{grid-column:2; grid-row:1; text-align:right}
+.alt-item .swap{grid-column:1 / -1}
+.alt-item .r{grid-column:1 / -1}
+.alt-item .n{font-weight:700; display:block}
+.alt-item .swap{
+  display:block; margin-top:3px; font-size:13.5px; color:var(--brass);
+  border-top:1px solid var(--line-soft); padding-top:4px;
+}
+.alt-item .swap b{font-weight:700}
+.alt-item .r{font-size:13.5px; color:var(--muted); display:block; margin-top:2px}
+.alt-item .g{font-size:13.5px; color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap}
+
+.notes{margin:0; padding-left:1.15em}
+.notes li{margin:7px 0; color:var(--ink)}
+.notes li::marker{color:var(--brass)}
+
+.empty-state{color:var(--muted); font-style:italic; margin:0}
+.example-flag{
+  display:inline-block; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--warn); border:1px dashed var(--warn); border-radius:2px; padding:2px 8px; margin-bottom:12px;
+}
+footer{
+  margin-top:34px; padding-top:14px; border-top:1px solid var(--line-soft);
+  color:var(--faint); font-size:13.5px;
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Liên Minh Huyền Thoại · ARAM: Hỗn Loạn</p>
+      <h1>Lối Lên Đồ Hỗn Loạn</h1>
+      <p class="sub">Chọn tướng bạn cầm và đội hình địch ở màn chọn tướng. Trang sẽ đọc đội địch — sát thương phép hay vật lý, bao nhiêu tướng đỡ đòn, có hồi máu hay không — rồi xếp lối lên đồ cho riêng ván này.</p>
+    </div>
+    <div class="mast-actions">
+      <button class="btn" id="btnReset" type="button">Trận mới</button>
+    </div>
+  </header>
+
+  <div class="cols">
+    <!-- ============ CỘT TRÁI: NHẬP ============ -->
+    <section>
+      <div class="panel">
+        <h2>Bàn chọn tướng</h2>
+        <div class="slot-row" style="margin-bottom:10px">
+          <button class="slot mine" type="button" data-slot="me" aria-pressed="false">
+            <span class="lbl">Tướng bạn cầm</span>
+            <span class="val empty" id="v-me">chưa chọn</span>
+          </button>
+        </div>
+        <div class="slot-row" id="enemyRow"></div>
+        <input class="search" id="search" type="text" placeholder="Gõ tên tướng… (ví dụ: Sor → Soraka)" autocomplete="off" spellcheck="false">
+        <p class="hint" id="pickHint">Bấm vào một ô ở trên để chọn ô cần điền, rồi bấm tên tướng bên dưới.</p>
+        <div class="champ-list" id="champList"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Đọc đội hình địch</h2>
+        <div id="profile">
+          <p class="empty-state">Chọn đủ 5 tướng địch để xem bảng phân tích.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CỘT PHẢI: KẾT QUẢ ============ -->
+    <section>
+      <div class="panel">
+        <h2>Lối lên đồ cho ván này</h2>
+        <div id="buildFlag"></div>
+        <div id="build">
+          <p class="empty-state">Chọn tướng bạn cầm trước, kết quả sẽ hiện ở đây.</p>
+        </div>
+      </div>
+
+      <div class="panel" id="altPanel" hidden>
+        <h2>Ba phương án thay thế</h2>
+        <p class="hint" style="margin:-4px 0 12px">Chỉ ba lựa chọn đáng cân nhắc nhất, mỗi lựa chọn thay một món khác nhau — đổi khi ván đi theo hướng khác dự tính.</p>
+        <div class="alt" id="alts"></div>
+      </div>
+
+      <div class="panel" id="notePanel" hidden>
+        <h2>Ghi chú cho ván này</h2>
+        <ul class="notes" id="notes"></ul>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Trang tính theo nguyên tắc chống chịu và xuyên giáp của LMHT, dùng lại được cho mọi ván Hỗn Loạn. Giá vàng là giá tham khảo và có thể đổi theo phiên bản. ARAM: Hỗn Loạn tắt toàn bộ ngọc, bù lại có Lõi Sức Mạnh ở cấp 3 · 7 · 11 · 15 — trang này chỉ lo phần trang bị.
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   1. DỮ LIỆU TƯỚNG
+   [tên, sát thương, vai trò, các đặc điểm]
+   sát thương: AD | AP | MIX
+   vai trò: batu(xạ thủ) xathu(sát thủ) dausi(đấu sĩ) dodon(đỡ đòn) phapsu(pháp sư) hotro(hỗ trợ)
+   đặc điểm: hoimau khongche luot burst poke danhthuong khien maunhieu
+   ========================================================= */
+const CHAMPS = [
+["Aatrox","AD","dausi","hoimau khongche luot"],
+["Ahri","AP","phapsu","luot burst khongche"],
+["Akali","AP","xathu","luot burst"],
+["Akshan","AD","batu","luot danhthuong"],
+["Alistar","AP","dodon","khongche hoimau maunhieu"],
+["Ambessa","AD","dausi","luot khongche"],
+["Amumu","AP","dodon","khongche maunhieu"],
+["Anivia","AP","phapsu","khongche poke"],
+["Annie","AP","phapsu","khongche burst"],
+["Aphelios","AD","batu","danhthuong"],
+["Ashe","AD","batu","khongche poke danhthuong"],
+["Aurelion Sol","AP","phapsu","khongche poke"],
+["Aurora","AP","phapsu","luot burst khongche"],
+["Azir","AP","phapsu","khongche danhthuong"],
+["Bard","AP","hotro","khongche hoimau"],
+["Bel'Veth","AD","dausi","luot danhthuong hoimau"],
+["Blitzcrank","AP","dodon","khongche khien maunhieu"],
+["Brand","AP","phapsu","burst poke"],
+["Braum","AP","dodon","khongche khien maunhieu"],
+["Briar","AD","dausi","hoimau luot khongche"],
+["Caitlyn","AD","batu","poke danhthuong khongche"],
+["Camille","AD","dausi","luot khongche khien"],
+["Cassiopeia","AP","phapsu","khongche hoimau"],
+["Cho'Gath","AP","dodon","khongche maunhieu"],
+["Corki","AD","batu","poke luot"],
+["Darius","AD","dausi","hoimau khongche"],
+["Diana","AP","xathu","luot khongche burst"],
+["Dr. Mundo","MIX","dodon","hoimau maunhieu khongche"],
+["Draven","AD","batu","danhthuong"],
+["Ekko","AP","xathu","luot burst hoimau khongche"],
+["Elise","AP","xathu","luot khongche"],
+["Evelynn","AP","xathu","luot burst"],
+["Ezreal","AD","batu","poke luot"],
+["Fiddlesticks","AP","phapsu","khongche hoimau"],
+["Fiora","AD","dausi","hoimau luot"],
+["Fizz","AP","xathu","luot burst khongche"],
+["Galio","AP","dodon","khongche khien maunhieu"],
+["Gangplank","AD","dausi","poke danhthuong"],
+["Garen","AD","dausi","hoimau khongche"],
+["Gnar","AD","dausi","khongche poke"],
+["Gragas","AP","dodon","khongche luot hoimau"],
+["Graves","AD","batu","danhthuong luot"],
+["Gwen","AP","dausi","hoimau luot"],
+["Hecarim","AD","dausi","luot khongche hoimau"],
+["Heimerdinger","AP","phapsu","poke khongche"],
+["Hwei","AP","phapsu","poke khongche khien"],
+["Illaoi","AD","dausi","hoimau khongche"],
+["Irelia","AD","dausi","hoimau luot khongche danhthuong"],
+["Ivern","AP","hotro","hoimau khien khongche"],
+["Janna","AP","hotro","khien khongche luot"],
+["Jarvan IV","AD","dausi","khongche luot"],
+["Jax","AD","dausi","luot khongche danhthuong"],
+["Jayce","AD","dausi","poke luot"],
+["Jhin","AD","batu","poke khongche danhthuong"],
+["Jinx","AD","batu","danhthuong khongche"],
+["K'Sante","AD","dodon","khongche luot maunhieu"],
+["Kai'Sa","MIX","batu","danhthuong luot"],
+["Kalista","AD","batu","danhthuong luot"],
+["Karma","AP","hotro","khien poke khongche"],
+["Karthus","AP","phapsu","poke"],
+["Kassadin","AP","xathu","luot burst khongche"],
+["Katarina","AP","xathu","luot burst"],
+["Kayle","MIX","dausi","danhthuong hoimau"],
+["Kayn","AD","xathu","luot hoimau"],
+["Kennen","AP","phapsu","khongche poke"],
+["Kha'Zix","AD","xathu","luot burst"],
+["Kindred","AD","batu","danhthuong luot hoimau"],
+["Kled","AD","dausi","luot khongche"],
+["Kog'Maw","MIX","batu","danhthuong poke"],
+["LeBlanc","AP","xathu","luot burst khongche"],
+["Lee Sin","AD","dausi","luot khongche khien"],
+["Leona","AP","dodon","khongche maunhieu"],
+["Lillia","AP","dausi","luot khongche hoimau"],
+["Lissandra","AP","phapsu","khongche burst"],
+["Lucian","AD","batu","danhthuong luot"],
+["Lulu","AP","hotro","khien khongche hoimau"],
+["Lux","AP","phapsu","khongche poke khien"],
+["Malphite","AP","dodon","khongche maunhieu"],
+["Malzahar","AP","phapsu","khongche"],
+["Maokai","AP","dodon","khongche hoimau maunhieu"],
+["Master Yi","AD","xathu","danhthuong hoimau luot"],
+["Mel","AP","phapsu","poke khongche"],
+["Milio","AP","hotro","hoimau khien khongche"],
+["Miss Fortune","AD","batu","poke danhthuong"],
+["Mordekaiser","AP","dausi","hoimau khongche maunhieu"],
+["Morgana","AP","phapsu","khongche khien"],
+["Naafiri","AD","xathu","luot hoimau"],
+["Nami","AP","hotro","hoimau khongche"],
+["Nasus","AD","dausi","hoimau khongche maunhieu"],
+["Nautilus","AP","dodon","khongche maunhieu"],
+["Neeko","AP","phapsu","khongche burst"],
+["Nidalee","AP","xathu","poke hoimau luot"],
+["Nilah","AD","batu","hoimau danhthuong luot"],
+["Nocturne","AD","xathu","luot khongche khien"],
+["Nunu & Willump","AP","dodon","khongche hoimau maunhieu"],
+["Olaf","AD","dausi","hoimau danhthuong"],
+["Orianna","AP","phapsu","khongche khien poke"],
+["Ornn","AP","dodon","khongche maunhieu"],
+["Pantheon","AD","dausi","poke khongche"],
+["Poppy","AD","dodon","khongche maunhieu khien"],
+["Pyke","AD","xathu","luot khongche hoimau"],
+["Qiyana","AD","xathu","luot khongche burst"],
+["Quinn","AD","batu","luot poke"],
+["Rakan","AP","hotro","khongche khien luot hoimau"],
+["Rammus","AP","dodon","khongche maunhieu"],
+["Rek'Sai","AD","dausi","luot khongche hoimau"],
+["Rell","AP","dodon","khongche maunhieu"],
+["Renata Glasc","AP","hotro","khongche khien"],
+["Renekton","AD","dausi","hoimau khongche luot"],
+["Rengar","AD","xathu","luot burst"],
+["Riven","AD","dausi","luot khongche khien"],
+["Rumble","AP","dausi","poke khongche"],
+["Ryze","AP","phapsu","khongche luot"],
+["Samira","AD","batu","danhthuong luot khongche"],
+["Sejuani","AP","dodon","khongche maunhieu"],
+["Senna","AD","batu","hoimau poke danhthuong"],
+["Seraphine","AP","hotro","hoimau khien khongche"],
+["Sett","AD","dausi","khien khongche maunhieu"],
+["Shaco","MIX","xathu","luot burst"],
+["Shen","AP","dodon","khongche khien maunhieu"],
+["Shyvana","MIX","dausi","luot danhthuong"],
+["Singed","AP","dodon","khongche maunhieu"],
+["Sion","AD","dodon","khongche maunhieu hoimau"],
+["Sivir","AD","batu","danhthuong khien"],
+["Skarner","AD","dodon","khongche luot maunhieu"],
+["Smolder","AD","batu","poke danhthuong"],
+["Sona","AP","hotro","hoimau khien khongche"],
+["Soraka","AP","hotro","hoimau khongche"],
+["Swain","AP","phapsu","hoimau khongche maunhieu"],
+["Sylas","AP","dausi","hoimau luot khongche"],
+["Syndra","AP","phapsu","khongche burst poke"],
+["Tahm Kench","AP","dodon","hoimau khongche maunhieu khien"],
+["Taliyah","AP","phapsu","khongche poke luot"],
+["Talon","AD","xathu","luot burst"],
+["Taric","AP","hotro","hoimau khongche"],
+["Teemo","AP","batu","poke danhthuong khongche"],
+["Thresh","AP","hotro","khongche khien"],
+["Tristana","AD","batu","danhthuong luot khongche"],
+["Trundle","AD","dausi","hoimau khongche"],
+["Tryndamere","AD","dausi","hoimau danhthuong luot"],
+["Twisted Fate","AP","phapsu","khongche poke"],
+["Twitch","AD","batu","danhthuong poke"],
+["Udyr","MIX","dausi","hoimau danhthuong khongche"],
+["Urgot","AD","dausi","khongche danhthuong maunhieu"],
+["Varus","AD","batu","poke danhthuong khongche"],
+["Vayne","AD","batu","danhthuong luot khongche"],
+["Veigar","AP","phapsu","khongche burst"],
+["Vel'Koz","AP","phapsu","poke khongche"],
+["Vex","AP","phapsu","khongche burst"],
+["Vi","AD","dausi","khongche luot khien"],
+["Viego","AD","xathu","hoimau luot khongche"],
+["Viktor","AP","phapsu","poke khongche"],
+["Vladimir","AP","phapsu","hoimau"],
+["Volibear","MIX","dausi","hoimau khongche luot"],
+["Warwick","MIX","dausi","hoimau khongche luot"],
+["Wukong","AD","dausi","khongche luot"],
+["Xayah","AD","batu","danhthuong khongche"],
+["Xerath","AP","phapsu","poke khongche"],
+["Xin Zhao","AD","dausi","hoimau khongche danhthuong"],
+["Yasuo","AD","dausi","danhthuong luot khongche khien"],
+["Yone","AD","dausi","danhthuong luot khongche"],
+["Yorick","AD","dausi","hoimau khongche"],
+["Yuumi","AP","hotro","hoimau khien"],
+["Yunara","AD","batu","danhthuong"],
+["Zac","AP","dodon","khongche hoimau luot maunhieu"],
+["Zed","AD","xathu","luot burst"],
+["Zeri","AD","batu","danhthuong luot khien"],
+["Ziggs","AP","phapsu","poke khongche"],
+["Zilean","AP","hotro","khongche hoimau"],
+["Zoe","AP","phapsu","poke khongche burst"],
+["Zyra","AP","phapsu","khongche poke"]
+].map(c => ({n:c[0], d:c[1], r:c[2], f:c[3].split(" ")}));
+
+const ROLE_VN = {batu:"Xạ thủ", xathu:"Sát thủ", dausi:"Đấu sĩ", dodon:"Đỡ đòn", phapsu:"Pháp sư", hotro:"Hỗ trợ"};
+
+/* =========================================================
+   2. KHO TRANG BỊ
+   f: điểm nền theo vai trò của tướng BẠN cầm
+   o: mốc lên đồ (1 = mua sớm, 3 = để sau)
+   rules: điểm cộng theo đội hình địch
+   ========================================================= */
+const I = (n,g,o,f,desc,rules) => ({n,g,o,f,desc,rules:rules||[]});
+const ITEMS = [
+  /* ---- Pháp sư / sát thủ phép ---- */
+  I("Mũ Phù Thủy Rabadon",3600,3,{phapsu:9,xathu:5,hotro:2},"Nhân toàn bộ sức mạnh phép",
+    [[p=>p.apSelf,3,"cộng dồn với mọi trang bị phép khác","ap"]]),
+  I("Trượng Hư Vô",3000,2,{phapsu:8,xathu:6,dausi:3},"Xuyên kháng phép theo phần trăm",
+    [[p=>p.tank>=2,6,"địch có %tank% tướng trâu sẽ mua kháng phép","ap"],[p=>p.tank===1,3,"địch có tướng trâu","ap"]]),
+  I("Quỷ Thư Morello",2200,1,{phapsu:6,xathu:4,hotro:3,dausi:2},"Giảm 40% hồi máu của mục tiêu",
+    [[p=>p.heal>=3,14,"địch có %heal% nguồn hồi máu — cắt máu là ưu tiên số một","must"],
+     [p=>p.heal===2,10,"địch có 2 tướng hồi máu","must"],
+     [p=>p.heal===1,5,"cắt hồi máu của địch","ap"]]),
+  I("Đồng Hồ Cát Zhonya",3250,2,{phapsu:7,xathu:6,dausi:2},"Bất tử 2,5 giây, cộng giáp",
+    [[p=>p.burst>=2,7,"né được cú bật của %burst% sát thủ","ad"],
+     [p=>p.adPct>=55,4,"thêm giáp trước đội hình nặng vật lý","ad"]]),
+  I("Mặt Nạ Đọa Đầy Liandry",3100,1,{phapsu:6,dausi:3},"Đốt máu tối đa theo thời gian",
+    [[p=>p.tank>=2,7,"càng nhiều máu địch càng đau","ap"],[p=>p.tank===1,3,"có mục tiêu nhiều máu","ap"]]),
+  I("Trượng Pha Lê Rylai",2600,2,{phapsu:5,hotro:3},"Mọi chiêu thức gây làm chậm",
+    [[p=>p.dash>=3,6,"ghìm %dash% tướng cơ động","ok"],[p=>p.dash===2,3,"hạn chế địch lướt vào","ok"]]),
+  I("Vọng Âm của Luden",2800,1,{phapsu:6},"Sát thương dồn và tốc biến chiêu",
+    [[p=>p.tank<=1,4,"đội địch mỏng, dồn một nhịp là đủ","ap"]]),
+  I("Ngọn Lửa Hắc Hóa",3000,2,{phapsu:6,xathu:4},"Xuyên phép, mạnh hơn khi địch ít máu",
+    [[p=>p.tank<=1,4,"phù hợp đội hình địch mỏng máu","ap"]]),
+  I("Nanh Nashor",3000,2,{phapsu:4,dausi:4,batu:2},"Sát thương phép cộng vào đòn đánh",
+    [[p=>p.dpsSelf,4,"hợp với tướng đánh thường lai phép","ok"]]),
+  I("Trượng Trường Sinh",2600,1,{phapsu:5,dausi:3},"Cộng dồn máu, mana và sức mạnh phép",
+    [[p=>p.poke>=2,5,"trụ được trước %poke% tướng quấy rối","ok"]]),
+  I("Quyền Trượng Đại Thiên Sứ",2800,1,{phapsu:5,hotro:2},"Giải quyết bài toán mana dài ván",
+    [[p=>p.poke>=2,3,"đủ mana để đôi co lâu","ok"]]),
+  I("Ngòi Nổ Hư Không Zaz'Zak",2700,2,{phapsu:4,hotro:3,dodon:2},"Sát thương lan theo máu tối đa",
+    [[p=>p.tank>=2,6,"đánh diện rộng vào %tank% tướng nhiều máu","ap"]]),
+
+  /* ---- Xạ thủ ---- */
+  I("Vô Cực Kiếm",3400,2,{batu:9},"Nhân sát thương chí mạng",
+    [[p=>p.critSelf,3,"xương sống của lối chí mạng","ad"]]),
+  I("Quang Kính Hextech C44",2800,1,{batu:7},"Chí mạng, càng đứng xa càng đau",
+    [[p=>p.poke>=2,4,"đôi co tầm xa với đội hình quấy rối","ad"]]),
+  I("Ma Vũ Song Kiếm",3000,2,{batu:6,dausi:2},"Tốc chạy và lá chắn khi sắp chết",
+    [[p=>p.burst>=2,6,"sống sót qua cú bật của sát thủ","ad"]]),
+  I("Cuồng Cung Runaan",2600,2,{batu:6},"Đòn đánh bắn thêm hai mũi tên",
+    [[p=>p.tank>=2,4,"dọn cả đội hình đứng chùm","ad"]]),
+  I("Đại Bác Liên Thanh",2800,2,{batu:5},"Tăng tầm đánh và làm chậm mục tiêu ở xa",
+    [[p=>p.dash>=3,5,"giữ khoảng cách với %dash% tướng lao vào","ok"]]),
+  I("Huyết Kiếm",3400,3,{batu:6,dausi:3},"Hút máu mạnh và lá chắn máu thừa",
+    [[p=>p.poke>=2,5,"hồi lại máu bị quấy rối","ok"],[p=>p.burst>=2,3,"đệm máu trước cú dồn","ok"]]),
+  I("Nỏ Thần Dominik",3000,2,{batu:8,dausi:3},"Xuyên giáp theo phần trăm",
+    [[p=>p.tank>=2,9,"địch có %tank% tướng trâu — không có món này thì không gãi nổi","must"],
+     [p=>p.tank===1,4,"có một tướng trâu cần xuyên giáp","ad"]]),
+  I("Lời Nhắc Tử Vong",3000,2,{batu:7,dausi:4,xathu:3},"Xuyên giáp kèm giảm hồi máu",
+    [[p=>p.heal>=2 && p.tank>=1,12,"vừa trâu vừa hồi máu — cắt máu và xuyên giáp cùng lúc","must"],
+     [p=>p.heal>=2,8,"địch có %heal% nguồn hồi máu","must"],
+     [p=>p.heal===1,4,"cắt hồi máu của địch","ad"]]),
+  I("Gươm Suy Vong",3200,1,{batu:6,dausi:5},"Đòn đánh trừ máu hiện tại của mục tiêu",
+    [[p=>p.tank>=2,7,"xé máu %tank% tướng đỡ đòn","ad"]]),
+  I("Cuồng Đao Guinsoo",3000,1,{batu:5,dausi:3},"Cộng dồn hiệu ứng đòn đánh",
+    [[p=>p.tank>=2,4,"đòn đánh cộng dồn ăn được tướng trâu","ad"]]),
+  I("Đao Chớp Navori",3000,3,{batu:5},"Chí mạng giúp hồi chiêu liên tục",[]),
+  I("Mũi Tên Yun Tal",3000,2,{batu:5},"Chí mạng kèm hút máu",
+    [[p=>p.poke>=2,3,"tự hồi máu giữa các nhịp quấy rối","ok"]]),
+  I("Cung Tiễn Diệt Quỷ",2650,2,{batu:5},"Tăng vọt sức đánh sau khi dùng chiêu cuối",[]),
+
+  /* ---- Đấu sĩ / sát thủ vật lý ---- */
+  I("Kiếm Ma Youmuu",2700,1,{xathu:8,dausi:3},"Xuyên giáp và tốc chạy khi áp sát",
+    [[p=>p.tank<=1,4,"đội địch mỏng, lao vào giết gọn","ad"]]),
+  I("Rìu Đen",3000,1,{dausi:8,xathu:5},"Cộng dồn làm rách giáp mục tiêu",
+    [[p=>p.tank>=2,7,"xé giáp %tank% tướng đỡ đòn cho cả đội","ad"]]),
+  I("Thương Phục Hận Serylda",3000,2,{xathu:6,dausi:5},"Xuyên giáp kèm làm chậm mục tiêu máu thấp",
+    [[p=>p.tank>=2,5,"xuyên giáp trước đội hình dày","ad"],[p=>p.dash>=3,3,"làm chậm tướng cơ động","ok"]]),
+  I("Tam Hợp Kiếm",3333,2,{dausi:8},"Đủ mọi chỉ số cho tướng đánh gần",[]),
+  I("Ngọn Giáo Shojin",3100,1,{dausi:7},"Tăng sát thương chiêu thức, hồi chiêu nhanh",[]),
+  I("Móng Vuốt Sterak",3100,2,{dausi:6,dodon:3},"Lá chắn lớn khi tụt máu sâu",
+    [[p=>p.burst>=2,8,"chống cú dồn của %burst% sát thủ","ad"],
+     [p=>p.cc>=3,3,"cộng thêm kháng hiệu ứng khi bị trói","ok"]]),
+  I("Chùy Gai Malmortius",3100,2,{dausi:6,xathu:5,batu:3},"Kháng phép và lá chắn chặn sát thương phép",
+    [[p=>p.apPct>=60,9,"%apPct%% sát thương địch là phép","ap"],
+     [p=>p.apPct>=45,4,"địch có lượng sát thương phép đáng kể","ap"]]),
+  I("Huyết Giáp Chúa Tể",3000,2,{dausi:6},"Đổi máu lấy sức mạnh công kích",
+    [[p=>p.poke>=2,3,"cần máu để trụ lại","ok"]]),
+  I("Kiếm Ác Xà",2500,2,{xathu:5,dausi:4,batu:3},"Phá và chặn lá chắn của địch",
+    [[p=>p.shield>=3,9,"địch có %shield% nguồn lá chắn","must"],
+     [p=>p.shield===2,5,"địch dựa vào lá chắn","ad"]]),
+
+  /* ---- Chống chịu chung ---- */
+  I("Giáp Thiên Thần",3000,3,{batu:5,xathu:5,dausi:4,phapsu:3},"Hồi sinh tại chỗ sau khi gục",
+    [[p=>p.burst>=2,7,"đứng dậy sau cú bật của %burst% sát thủ","ad"],
+     [p=>p.cc>=4,3,"bảo hiểm khi bị bắt lẻ","ok"]]),
+  I("Đao Thủy Ngân",3000,2,{batu:5,dausi:4,xathu:3},"Giải mọi hiệu ứng khống chế",
+    [[p=>p.cc>=4,9,"địch có %cc% nguồn khống chế cứng","must"],
+     [p=>p.cc===3,5,"đủ khống chế để khoá chết bạn","ok"]]),
+  I("Khăn Giải Thuật",1300,1,{batu:4,dausi:3,phapsu:3,xathu:3,hotro:3},"Bản rẻ của món giải khống chế, mua chen giữa ván",
+    [[p=>p.cc>=4,7,"mua sớm để thoát chuỗi khống chế","ok"],[p=>p.cc===3,4,"chống bị bắt lẻ","ok"]]),
+
+  /* ---- Đỡ đòn ---- */
+  I("Khiên Thái Dương",2700,1,{dodon:8,dausi:3},"Đốt máu địch xung quanh, giáp và kháng phép",[]),
+  I("Giáp Liệt Sĩ",2700,1,{dodon:7,dausi:3},"Phản sát thương và giảm hồi máu kẻ đánh mình",
+    [[p=>p.dps>=2 && p.adPct>=55,9,"chặn %dps% tướng đánh thường, kèm cắt hồi máu","must"],
+     [p=>p.heal>=2,6,"cắt hồi máu khi địch lao vào","must"],
+     [p=>p.adPct>=60,4,"%adPct%% sát thương địch là vật lý","ad"]]),
+  I("Khiên Băng Randuin",2700,2,{dodon:6},"Giảm sát thương chí mạng và làm chậm quanh mình",
+    [[p=>p.dps>=2,8,"hoá giải %dps% tướng đánh thường","ad"],
+     [p=>p.adPct>=60,3,"đội hình địch nặng vật lý","ad"]]),
+  I("Tim Băng",2700,2,{dodon:6,hotro:2},"Giáp lớn và bào tốc đánh của địch xung quanh",
+    [[p=>p.dps>=2,7,"hạ tốc đánh của %dps% tướng đánh thường","ad"]]),
+  I("Giáp Thiên Nhiên",2900,2,{dodon:7,dausi:3},"Kháng phép cộng dồn và tốc chạy",
+    [[p=>p.apPct>=60,9,"%apPct%% sát thương địch là phép","ap"],
+     [p=>p.apPct>=45,4,"lượng sát thương phép đáng kể","ap"]]),
+  I("Giáp Tâm Linh",2900,2,{dodon:6,dausi:4},"Kháng phép và tăng mọi nguồn hồi máu lên bạn",
+    [[p=>p.apPct>=50 && p.healSelf,9,"vừa chống phép vừa cộng hưởng hồi máu của bạn","ap"],
+     [p=>p.apPct>=55,5,"chống đội hình nặng phép","ap"]]),
+  I("Giáp Máu Warmog",3000,2,{dodon:6,dausi:4},"Máu khổng lồ và hồi máu ngoài giao tranh",
+    [[p=>p.poke>=3,8,"hồi lại máu bị %poke% tướng quấy rối bào mòn","ok"],
+     [p=>p.poke===2,4,"chống bào máu tầm xa","ok"]]),
+  I("Trái Tim Khổng Thần",3000,1,{dodon:6},"Tích luỹ máu tối đa qua từng cú đánh",[]),
+  I("Jak'Sho Vỏ Bọc Thích Nghi",3200,2,{dodon:6},"Càng đứng lâu trong giao tranh càng dày",
+    [[p=>p.apPct>=40 && p.apPct<=60,7,"đội địch chia đều phép và vật lý","ok"]]),
+  I("Thú Tượng Thạch Giáp",3000,3,{dodon:5},"Phình to và giảm sát thương khi mở giao tranh",
+    [[p=>p.burst>=2,4,"hứng cú mở giao tranh","ok"]]),
+  I("Băng Trượng Vĩnh Cửu",2400,1,{dodon:5},"Lá chắn liên tục cho tướng nhiều mana",[]),
+  I("Găng Tay Băng Giá",2600,2,{dodon:5,dausi:3},"Vùng băng làm chậm sau mỗi chiêu",
+    [[p=>p.dash>=3,7,"khoá chân %dash% tướng cơ động","ok"]]),
+  I("Mặt Nạ Vực Thẳm",2800,2,{dodon:5},"Kháng phép và khiến địch quanh mình chịu thêm sát thương phép",
+    [[p=>p.apPct>=55,5,"đội hình địch nặng phép","ap"]]),
+
+  /* ---- Hỗ trợ ---- */
+  I("Chuông Bảo Hộ Mikael",2300,1,{hotro:7},"Giải khống chế cho đồng đội và hồi máu",
+    [[p=>p.cc>=4,10,"gỡ %cc% nguồn khống chế cho cả đội","must"],
+     [p=>p.cc===3,5,"cứu đồng đội khỏi chuỗi khống chế","ok"]]),
+  I("Lư Hương Sôi Sục",2300,2,{hotro:7},"Tăng tốc đánh và sát thương cho người được bạn buff",[]),
+  I("Vương Miện Shurelya",2200,1,{hotro:6},"Tăng tốc cả đội để lao vào hoặc rút chạy",
+    [[p=>p.dash>=3,4,"bám hoặc thoát khỏi đội hình cơ động","ok"]]),
+  I("Vọng âm Helia",2300,1,{hotro:6},"Hồi máu diện rộng khi giao tranh nổ ra",[]),
+  I("Bùa Nguyệt Thạch",2500,2,{hotro:6},"Hồi máu và lá chắn lan sang đồng đội xung quanh",[]),
+  I("Dây Chuyền Chuộc Tội",2300,1,{hotro:5},"Hồi máu từ xa cho đồng đội đang bị dồn",
+    [[p=>p.poke>=2,4,"vá lại máu bị quấy rối","ok"]]),
+  I("Tụ Bão Zeke",2200,2,{hotro:5},"Kết đôi với người gây sát thương chính của đội",[]),
+  I("Dây Chuyền Iron Solari",2200,1,{hotro:6,dodon:3},"Lá chắn diện rộng đúng nhịp giao tranh",
+    [[p=>p.burst>=2,6,"chặn cú mở của %burst% sát thủ","ok"]])
+];
+
+/* Vai trò của từng món trong lối lên đồ — dùng để ghép món thay thế với đúng ô nó thay */
+const SLOT = {
+  sattuong:"sát thương", xuyen:"xuyên giáp / xuyên kháng phép", cathoi:"cắt hồi máu",
+  chongchiu:"chống chịu", giaikhongche:"giải khống chế", hoimau:"hút máu",
+  tienich:"tiện ích", mana:"mana & hồi chiêu", phakhien:"phá lá chắn"
+};
+const ITEM_SLOT = {
+  "Mũ Phù Thủy Rabadon":"sattuong", "Trượng Hư Vô":"xuyen", "Quỷ Thư Morello":"cathoi",
+  "Đồng Hồ Cát Zhonya":"chongchiu", "Mặt Nạ Đọa Đầy Liandry":"sattuong", "Trượng Pha Lê Rylai":"tienich",
+  "Vọng Âm của Luden":"sattuong", "Ngọn Lửa Hắc Hóa":"xuyen", "Nanh Nashor":"sattuong",
+  "Trượng Trường Sinh":"chongchiu", "Quyền Trượng Đại Thiên Sứ":"mana", "Ngòi Nổ Hư Không Zaz'Zak":"sattuong",
+  "Vô Cực Kiếm":"sattuong", "Quang Kính Hextech C44":"sattuong", "Ma Vũ Song Kiếm":"chongchiu",
+  "Cuồng Cung Runaan":"sattuong", "Đại Bác Liên Thanh":"tienich", "Huyết Kiếm":"hoimau",
+  "Nỏ Thần Dominik":"xuyen", "Lời Nhắc Tử Vong":"cathoi", "Gươm Suy Vong":"xuyen",
+  "Cuồng Đao Guinsoo":"sattuong", "Đao Chớp Navori":"sattuong", "Mũi Tên Yun Tal":"hoimau",
+  "Cung Tiễn Diệt Quỷ":"sattuong",
+  "Kiếm Ma Youmuu":"sattuong", "Rìu Đen":"xuyen", "Thương Phục Hận Serylda":"xuyen",
+  "Tam Hợp Kiếm":"sattuong", "Ngọn Giáo Shojin":"sattuong", "Móng Vuốt Sterak":"chongchiu",
+  "Chùy Gai Malmortius":"chongchiu", "Huyết Giáp Chúa Tể":"sattuong", "Kiếm Ác Xà":"phakhien",
+  "Giáp Thiên Thần":"chongchiu", "Đao Thủy Ngân":"giaikhongche", "Khăn Giải Thuật":"giaikhongche",
+  "Khiên Thái Dương":"chongchiu", "Giáp Liệt Sĩ":"chongchiu", "Khiên Băng Randuin":"chongchiu",
+  "Tim Băng":"chongchiu", "Giáp Thiên Nhiên":"chongchiu", "Giáp Tâm Linh":"chongchiu",
+  "Giáp Máu Warmog":"chongchiu", "Trái Tim Khổng Thần":"chongchiu", "Jak'Sho Vỏ Bọc Thích Nghi":"chongchiu",
+  "Thú Tượng Thạch Giáp":"chongchiu", "Băng Trượng Vĩnh Cửu":"mana", "Găng Tay Băng Giá":"tienich",
+  "Mặt Nạ Vực Thẳm":"chongchiu",
+  "Chuông Bảo Hộ Mikael":"giaikhongche", "Lư Hương Sôi Sục":"tienich", "Vương Miện Shurelya":"tienich",
+  "Vọng âm Helia":"hoimau", "Bùa Nguyệt Thạch":"hoimau", "Dây Chuyền Chuộc Tội":"hoimau",
+  "Tụ Bão Zeke":"tienich", "Dây Chuyền Iron Solari":"tienich"
+};
+
+/* Vai trò phụ — nhiều món gánh hai việc cùng lúc, dùng khi không tìm được ô cùng vai trò chính */
+const ITEM_SLOT2 = {
+  "Lời Nhắc Tử Vong":"xuyen", "Giáp Liệt Sĩ":"cathoi", "Quỷ Thư Morello":"sattuong",
+  "Kiếm Ác Xà":"sattuong", "Ma Vũ Song Kiếm":"sattuong", "Đao Thủy Ngân":"chongchiu",
+  "Khăn Giải Thuật":"chongchiu", "Huyết Kiếm":"sattuong", "Mũi Tên Yun Tal":"sattuong",
+  "Trượng Trường Sinh":"sattuong", "Đại Bác Liên Thanh":"sattuong", "Trượng Pha Lê Rylai":"sattuong",
+  "Găng Tay Băng Giá":"chongchiu", "Quyền Trượng Đại Thiên Sứ":"sattuong", "Băng Trượng Vĩnh Cửu":"chongchiu",
+  "Ngọn Lửa Hắc Hóa":"sattuong", "Trượng Hư Vô":"sattuong", "Gươm Suy Vong":"sattuong",
+  "Nỏ Thần Dominik":"sattuong", "Rìu Đen":"sattuong", "Thương Phục Hận Serylda":"sattuong",
+  "Vọng âm Helia":"tienich", "Bùa Nguyệt Thạch":"tienich", "Dây Chuyền Chuộc Tội":"tienich",
+  "Chuông Bảo Hộ Mikael":"tienich", "Móng Vuốt Sterak":"sattuong", "Ngòi Nổ Hư Không Zaz'Zak":"xuyen"
+};
+
+const BOOTS = [
+  {n:"Giày Thủy Ngân", g:1300, d:"+20 kháng phép, +30% kháng hiệu ứng khống chế"},
+  {n:"Giày Giáp Sắt", g:1100, d:"+20 giáp, giảm sát thương từ đòn đánh thường"},
+  {n:"Giày Pháp Sư", g:1100, d:"+18 xuyên kháng phép"},
+  {n:"Giày Cuồng Nộ", g:1100, d:"+25% tốc độ đánh"},
+  {n:"Giày Bạc", g:1000, d:"+60 tốc chạy, giảm 25% hiệu lực làm chậm"},
+  {n:"Giày Đỏ Khai Sáng", g:750, d:"+20 điểm hồi kỹ năng"}
+];
+
+/* =========================================================
+   3. TRẠNG THÁI
+   ========================================================= */
+const KEY = "aramMayhemBuild.v1";
+const EXAMPLE = {me:"Jinx", enemies:["Malphite","Soraka","Yasuo","Lux","Leona"], demo:true};
+let state = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const s = JSON.parse(raw);
+      if(s && Array.isArray(s.enemies)) return {me:s.me||null, enemies:s.enemies.slice(0,5), demo:false};
+    }
+  }catch(e){}
+  return {me:EXAMPLE.me, enemies:EXAMPLE.enemies.slice(), demo:true};
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify({me:state.me, enemies:state.enemies})); }catch(e){}
+}
+const byName = n => CHAMPS.find(c => c.n === n) || null;
+
+let active = "e0";
+
+/* =========================================================
+   4. ĐỌC ĐỘI HÌNH ĐỊCH
+   ========================================================= */
+function profile(){
+  const me = byName(state.me);
+  const es = state.enemies.map(byName).filter(Boolean);
+  let ad = 0, ap = 0;
+  const has = f => es.filter(c => c.f.includes(f)).length;
+  es.forEach(c => {
+    if(c.d === "AD") ad++;
+    else if(c.d === "AP") ap++;
+    else { ad += 0.5; ap += 0.5; }
+  });
+  const tot = ad + ap || 1;
+  const p = {
+    n: es.length,
+    ad, ap,
+    adPct: Math.round(ad / tot * 100),
+    apPct: Math.round(ap / tot * 100),
+    tank: es.filter(c => c.r === "dodon" || c.f.includes("maunhieu")).length,
+    heal: has("hoimau"),
+    cc: has("khongche"),
+    dash: has("luot"),
+    burst: es.filter(c => c.r === "xathu" || c.f.includes("burst")).length,
+    poke: has("poke"),
+    dps: has("danhthuong"),
+    shield: has("khien")
+  };
+  p.apSelf   = !!me && (me.d === "AP" || me.d === "MIX");
+  p.critSelf = !!me && me.r === "batu";
+  p.dpsSelf  = !!me && me.f.includes("danhthuong");
+  p.healSelf = !!me && me.f.includes("hoimau");
+  return p;
+}
+
+/* =========================================================
+   5. CHẤM ĐIỂM TRANG BỊ
+   ========================================================= */
+function fill(t, p){
+  return t.replace(/%(\w+)%/g, (_, k) => p[k]);
+}
+function rank(){
+  const me = byName(state.me);
+  if(!me) return [];
+  const p = profile();
+  const out = [];
+  for(const it of ITEMS){
+    const base = it.f[me.r] || 0;
+    if(!base) continue;
+    let score = base;
+    const why = [];
+    for(const [cond, add, text, kind] of it.rules){
+      if(cond(p)){ score += add; why.push({t: fill(text, p), k: kind}); }
+    }
+    out.push({...it, score, why});
+  }
+  out.sort((a,b) => b.score - a.score || a.o - b.o);
+  return out;
+}
+function pickBoots(p){
+  const me = byName(state.me);
+  if(!me) return null;
+  if(p.n === 5 && p.cc >= 4) return {...BOOTS[0], why:"Địch có " + p.cc + " nguồn khống chế — rút ngắn thời gian bị trói đáng giá hơn sát thương"};
+  if(p.n === 5 && p.dps >= 3 && p.adPct >= 55) return {...BOOTS[1], why:"Địch có " + p.dps + " tướng sống bằng đòn đánh thường"};
+  if(p.n === 5 && p.cc >= 3 && p.apPct >= 55) return {...BOOTS[0], why:"Vừa rút ngắn khống chế vừa cộng kháng phép"};
+  if(p.n === 5 && p.dash >= 3 && me.r !== "dodon") return {...BOOTS[4], why:"Địch có " + p.dash + " tướng lướt kèm làm chậm — giữ được chân là giữ được mạng"};
+  if(me.d === "AP" || (me.d === "MIX" && me.r === "phapsu")) return {...BOOTS[2], why:"Xuyên kháng phép cho tướng sát thương phép"};
+  if(me.r === "batu") return {...BOOTS[3], why:"Tốc đánh cho lối chơi đòn đánh thường"};
+  if(me.r === "hotro") return {...BOOTS[5], why:"Hồi chiêu nhanh để buff và giải cứu liên tục"};
+  if(p.adPct >= 55) return {...BOOTS[1], why:"Đội hình địch nghiêng về sát thương vật lý"};
+  return {...BOOTS[4], why:"Giữ nhịp di chuyển trên cầu hẹp của Hỗn Loạn"};
+}
+
+function notesFor(p){
+  const me = byName(state.me);
+  const out = [];
+  if(p.n < 5) return out;
+  if(p.heal >= 2) out.push("Địch có " + p.heal + " nguồn hồi máu. Món giảm hồi máu phải nằm trong ba món đầu, đừng để đến món thứ tư — mua muộn là thua nhịp.");
+  if(p.tank >= 3) out.push("Ba tướng đỡ đòn trở lên: sát thương cộng thẳng gần như vô dụng. Ưu tiên xuyên giáp, xuyên kháng phép và sát thương theo phần trăm máu.");
+  if(p.poke >= 3) out.push("Đội địch mạnh ở khoản quấy rối tầm xa. Đứng sau quân lính, nhặt bùa hồi máu giữa cầu và cân nhắc món cộng máu sớm.");
+  if(p.burst >= 2) out.push("Có " + p.burst + " tướng dồn sát thương. Một món phòng thủ đặt ở vị trí thứ hai hoặc thứ ba sẽ giữ mạng tốt hơn là cố lên đủ đồ công.");
+  if(p.cc >= 4) out.push("Đội địch có " + p.cc + " nguồn khống chế cứng. Giày Thủy Ngân và một món giải khống chế đáng giá hơn một món sát thương.");
+  if(p.dash >= 3) out.push(p.dash + " tướng có kỹ năng lướt. Các món làm chậm sẽ khiến địch không vào rồi ra tự do được.");
+  if(p.adPct >= 70) out.push("Sát thương địch gần như thuần vật lý — giáp là chỉ số đáng mua, kháng phép gần như bỏ phí.");
+  if(p.apPct >= 70) out.push("Sát thương địch gần như thuần phép — dồn kháng phép, đừng mua giáp.");
+  if(p.adPct >= 40 && p.adPct <= 60) out.push("Đội địch chia đều hai loại sát thương: một món giáp và một món kháng phép tốt hơn là dồn hết vào một phía.");
+  if(me && me.r === "hotro") out.push("Ở Hỗn Loạn không ai đứng đường riêng — hãy đứng cạnh người gây sát thương chính của đội và giữ chiêu giải cứu cho họ.");
+  return out.slice(0, 4);
+}
+
+/* =========================================================
+   6. HIỂN THỊ
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderSlots(){
+  const row = $("#enemyRow");
+  row.innerHTML = state.enemies.map((n, i) => {
+    const c = n ? byName(n) : null;
+    return '<button class="slot" type="button" data-slot="e' + i + '" aria-pressed="' + (active === "e" + i) + '">' +
+      '<span class="lbl">Địch ' + (i + 1) + '</span>' +
+      '<span class="val' + (c ? '' : ' empty') + '">' + (c ? esc(c.n) : "trống") + '</span></button>';
+  }).join("");
+  const meC = state.me ? byName(state.me) : null;
+  $("#v-me").textContent = meC ? meC.n + " · " + ROLE_VN[meC.r] : "chưa chọn";
+  $("#v-me").className = "val" + (meC ? "" : " empty");
+  document.querySelector('[data-slot="me"]').setAttribute("aria-pressed", active === "me");
+}
+
+function renderChampList(){
+  const q = $("#search").value.trim().toLowerCase();
+  const taken = new Set([state.me, ...state.enemies].filter(Boolean));
+  const list = CHAMPS.filter(c => !q || c.n.toLowerCase().includes(q)).slice(0, 70);
+  $("#champList").innerHTML = list.map(c =>
+    '<button class="champ-btn' + (taken.has(c.n) ? " taken" : "") + '" type="button" data-pick="' + esc(c.n) + '">' +
+    esc(c.n) + '<span class="tag">' + (c.d === "MIX" ? "lai" : c.d) + '</span></button>'
+  ).join("") || '<p class="hint">Không tìm thấy tướng nào khớp.</p>';
+}
+
+function renderProfile(){
+  const p = profile();
+  const box = $("#profile");
+  if(p.n < 5){
+    box.innerHTML = '<p class="empty-state">Đã chọn ' + p.n + '/5 tướng địch. Điền đủ 5 ô để trang chấm điểm chính xác.</p>' +
+      (p.n ? '<p class="hint">Kết quả bên phải vẫn đang tính theo ' + p.n + ' tướng đã nhập.</p>' : '');
+    if(!p.n) return;
+  } else { box.innerHTML = ""; }
+
+  const chip = (label, v, hot) => '<span class="chip' + (hot ? " hot" : "") + '">' + label + ' <b>' + v + '</b></span>';
+  box.insertAdjacentHTML("beforeend",
+    '<div class="meter">' +
+      '<div class="meter-bar">' +
+        '<div class="meter-ad" style="width:' + p.adPct + '%"></div>' +
+        '<div class="meter-ap" style="width:' + p.apPct + '%"></div>' +
+      '</div>' +
+      '<div class="meter-legend"><span>Vật lý <b>' + p.adPct + '%</b></span><span><b>' + p.apPct + '%</b> Phép</span></div>' +
+    '</div>' +
+    '<div class="chips">' +
+      chip("Đỡ đòn", p.tank, p.tank >= 2) +
+      chip("Hồi máu", p.heal, p.heal >= 2) +
+      chip("Khống chế cứng", p.cc, p.cc >= 3) +
+      chip("Lướt", p.dash, p.dash >= 3) +
+      chip("Đánh thường", p.dps, p.dps >= 2) +
+      chip("Dồn sát thương", p.burst, p.burst >= 2) +
+      chip("Quấy rối", p.poke, p.poke >= 2) +
+      chip("Lá chắn", p.shield, p.shield >= 2) +
+    '</div>');
+}
+
+function renderBuild(){
+  const me = state.me ? byName(state.me) : null;
+  const flag = $("#buildFlag");
+  flag.innerHTML = state.demo ? '<span class="example-flag">Ví dụ mẫu — bấm “Trận mới” để nhập ván của bạn</span>' : "";
+
+  if(!me){
+    $("#build").innerHTML = '<p class="empty-state">Chọn tướng bạn cầm trước, kết quả sẽ hiện ở đây.</p>';
+    $("#altPanel").hidden = true; $("#notePanel").hidden = true;
+    return;
+  }
+  const p = profile();
+  const ranked = rank();
+  const core = ranked.slice(0, 5).sort((a, b) => a.o - b.o || b.score - a.score);
+  const boots = pickBoots(p);
+
+  let html = '<h3>' + esc(me.n) + ' <span style="font-weight:400;color:var(--muted)">· ' + ROLE_VN[me.r] +
+             ' · ' + (me.d === "MIX" ? "sát thương lai" : me.d === "AD" ? "sát thương vật lý" : "sát thương phép") + '</span></h3>';
+
+  html += core.map((it, i) =>
+    '<div class="step">' +
+      '<div class="step-n">' + (i + 1) + '</div>' +
+      '<div class="step-body">' +
+        '<div class="step-name">' + esc(it.n) + '</div>' +
+        '<div class="step-meta">' + it.g.toLocaleString("vi-VN") + ' vàng · ' + esc(it.desc) + '</div>' +
+        (it.why.length ? '<ul class="why">' + it.why.map(w => '<li class="' + (w.k || "") + '">' + esc(w.t) + '</li>').join("") + '</ul>' : "") +
+      '</div>' +
+    '</div>').join("");
+
+  if(boots){
+    html += '<div class="step">' +
+      '<div class="step-n boot">G</div>' +
+      '<div class="step-body">' +
+        '<div class="step-name">' + esc(boots.n) + '</div>' +
+        '<div class="step-meta">' + boots.g.toLocaleString("vi-VN") + ' vàng · ' + esc(boots.d) + '</div>' +
+        '<ul class="why"><li>' + esc(boots.why) + '</li></ul>' +
+      '</div></div>';
+  }
+  $("#build").innerHTML = html;
+
+  // Ghép mỗi món thay thế với món yếu nhất cùng vai trò trong lối lên đồ chính,
+  // rồi chỉ giữ 3 phương án tốt nhất và mỗi phương án thay một món khác nhau.
+  const coreRanked = core.slice().sort((a, b) => a.score - b.score);
+  const findTarget = it => {
+    const slot = ITEM_SLOT[it.n], slot2 = ITEM_SLOT2[it.n];
+    return coreRanked.find(c => ITEM_SLOT[c.n] === slot)
+        || (slot2 ? coreRanked.find(c => ITEM_SLOT[c.n] === slot2 || ITEM_SLOT2[c.n] === slot) : null)
+        || null;
+  };
+  const pool = ranked.slice(5, 16).map(it => ({it, target: findTarget(it)}));
+  const used = new Set(), alts = [];
+  for(const c of pool){                                   // ưu tiên: thay được một món cụ thể
+    if(alts.length === 3) break;
+    if(c.target && !used.has(c.target.n)){ used.add(c.target.n); alts.push(c); }
+  }
+  for(const c of pool){                                   // vét thêm nếu chưa đủ ba
+    if(alts.length === 3) break;
+    if(!alts.includes(c)) alts.push(c);
+  }
+
+  $("#altPanel").hidden = alts.length === 0;
+  $("#alts").innerHTML = alts.map(({it, target}) => {
+    const swap = target
+      ? 'Thay cho <b>' + esc(target.n) + '</b>'
+      : 'Món thứ 6 nếu ván kéo dài · vai trò ' + esc(SLOT[ITEM_SLOT[it.n]] || "bổ trợ");
+    return '<div class="alt-item">' +
+      '<span class="n">' + esc(it.n) + '</span>' +
+      '<span class="swap">' + swap + '</span>' +
+      '<span class="r">' + esc(it.why.length ? it.why[0].t : it.desc) + '</span>' +
+      '<span class="g">' + it.g.toLocaleString("vi-VN") + ' vàng</span>' +
+      '</div>';
+  }).join("");
+
+  const ns = notesFor(p);
+  $("#notePanel").hidden = ns.length === 0;
+  $("#notes").innerHTML = ns.map(t => "<li>" + esc(t) + "</li>").join("");
+}
+
+function renderAll(){ renderSlots(); renderChampList(); renderProfile(); renderBuild(); }
+
+/* =========================================================
+   7. TƯƠNG TÁC
+   ========================================================= */
+function setActive(slot){ active = slot; renderSlots(); }
+
+function assign(name){
+  state.demo = false;
+  if(active === "me"){
+    state.me = name;
+    const next = state.enemies.findIndex(x => !x);
+    active = next === -1 ? "me" : "e" + next;
+  } else {
+    const i = +active.slice(1);
+    state.enemies[i] = name;
+    const next = state.enemies.findIndex(x => !x);
+    active = next === -1 ? "e" + i : "e" + next;
+  }
+  $("#search").value = "";
+  save();
+  renderAll();
+}
+
+document.addEventListener("click", e => {
+  const slot = e.target.closest("[data-slot]");
+  if(slot){ setActive(slot.dataset.slot); $("#search").focus(); return; }
+  const pick = e.target.closest("[data-pick]");
+  if(pick){ assign(pick.dataset.pick); return; }
+});
+
+$("#search").addEventListener("input", renderChampList);
+$("#search").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    const first = $("#champList").querySelector("[data-pick]");
+    if(first) assign(first.dataset.pick);
+  }
+});
+
+$("#btnReset").addEventListener("click", () => {
+  state = {me: state.me, enemies: [null, null, null, null, null], demo: false};
+  active = "e0";
+  $("#search").value = "";
+  save();
+  renderAll();
+  $("#search").focus();
+});
+
+if(!Array.isArray(state.enemies) || state.enemies.length !== 5){
+  state.enemies = (state.enemies || []).concat([null, null, null, null, null]).slice(0, 5);
+}
+renderAll();
+</script>
+
+</body>
+</html>
