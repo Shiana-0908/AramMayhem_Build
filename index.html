@@ -113,6 +113,30 @@ h3{font-size:19px; margin:0 0 8px; font-weight:700}
 .slot.mine{flex:1 1 100%}
 .slot.mine .val{color:var(--brass)}
 
+/* ---------- lối chơi ---------- */
+#styleRow{margin-top:10px}
+.style-lbl{
+  display:block; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--faint); margin-bottom:5px;
+}
+.style-btns{display:flex; flex-wrap:wrap; gap:6px}
+.style-btn{
+  background:var(--raise); border:1px solid var(--line); border-radius:3px;
+  padding:5px 11px; font-size:14.5px; color:var(--ink); line-height:1.3;
+}
+.style-btn:hover{border-color:var(--brass); color:var(--brass)}
+.style-btn[aria-pressed="true"]{border-color:var(--brass); background:var(--brass-soft); color:var(--brass); font-weight:700}
+.style-note{
+  border-left:3px solid var(--brass); padding:2px 0 2px 13px; margin:0 0 16px;
+}
+.style-note-t{
+  font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); margin-bottom:5px;
+}
+.style-note p{margin:0; font-size:15.5px; color:var(--muted); max-width:62ch}
+.style-note p.risk{margin-top:6px}
+.style-note p.risk b{color:var(--warn)}
+.step-n.core{background:var(--brass-soft); border-width:2px; font-weight:700}
+
 .search{
   width:100%; margin-top:14px; padding:9px 11px; font-size:16px; font-family:var(--serif);
   background:var(--raise); color:var(--ink); border:1px solid var(--line); border-radius:3px;
@@ -129,6 +153,7 @@ h3{font-size:19px; margin:0 0 8px; font-weight:700}
 }
 .champ-btn:hover{border-color:var(--brass); color:var(--brass)}
 .champ-btn .tag{font-size:11px; color:var(--faint); margin-left:5px}
+.champ-btn .mark, .mark{color:var(--brass); font-size:10px; margin-left:4px; vertical-align:2px}
 .champ-btn.taken{opacity:.38}
 
 /* ---------- threat meter ---------- */
@@ -216,7 +241,7 @@ footer{
     <div>
       <p class="eyebrow">Liên Minh Huyền Thoại · ARAM: Hỗn Loạn</p>
       <h1>Lối Lên Đồ Hỗn Loạn</h1>
-      <p class="sub">Chọn tướng bạn cầm và đội hình địch ở màn chọn tướng. Trang sẽ đọc đội địch — sát thương phép hay vật lý, bao nhiêu tướng đỡ đòn, có hồi máu hay không — rồi xếp lối lên đồ cho riêng ván này.</p>
+      <p class="sub">Chọn tướng bạn cầm và đội hình địch ở màn chọn tướng. Trang sẽ đọc đội địch — sát thương phép hay vật lý, bao nhiêu tướng đỡ đòn, có hồi máu hay không — rồi xếp lối lên đồ cho riêng ván này. Một số tướng còn có lối chơi sáng tạo để đổi hẳn hướng lên đồ.</p>
     </div>
     <div class="mast-actions">
       <button class="btn" id="btnReset" type="button">Trận mới</button>
@@ -234,9 +259,13 @@ footer{
             <span class="val empty" id="v-me">chưa chọn</span>
           </button>
         </div>
+        <div id="styleRow" hidden>
+          <span class="style-lbl">Lối chơi</span>
+          <div class="style-btns" id="styleBtns"></div>
+        </div>
         <div class="slot-row" id="enemyRow"></div>
         <input class="search" id="search" type="text" placeholder="Gõ tên tướng… (ví dụ: Sor → Soraka)" autocomplete="off" spellcheck="false">
-        <p class="hint" id="pickHint">Bấm vào một ô ở trên để chọn ô cần điền, rồi bấm tên tướng bên dưới.</p>
+        <p class="hint" id="pickHint">Bấm vào một ô ở trên để chọn ô cần điền, rồi bấm tên tướng bên dưới. Dấu <span class="mark">◆</span> là tướng có lối chơi sáng tạo để đổi hướng lên đồ.</p>
         <div class="champ-list" id="champList"></div>
       </div>
 
@@ -449,6 +478,7 @@ const CHAMPS = [
 ["Yorick","AD","dausi","hoimau khongche"],
 ["Yuumi","AP","hotro","hoimau khien"],
 ["Yunara","AD","batu","danhthuong"],
+["Zaahen","AD","dausi","hoimau khongche luot"],
 ["Zac","AP","dodon","khongche hoimau luot maunhieu"],
 ["Zed","AD","xathu","luot burst"],
 ["Zeri","AD","batu","danhthuong luot khien"],
@@ -601,8 +631,160 @@ const ITEMS = [
     [[p=>p.poke>=2,4,"vá lại máu bị quấy rối","ok"]]),
   I("Tụ Bão Zeke",2200,2,{hotro:5},"Kết đôi với người gây sát thương chính của đội",[]),
   I("Dây Chuyền Iron Solari",2200,1,{hotro:6,dodon:3},"Lá chắn diện rộng đúng nhịp giao tranh",
-    [[p=>p.burst>=2,6,"chặn cú mở của %burst% sát thủ","ok"]])
+    [[p=>p.burst>=2,6,"chặn cú mở của %burst% sát thủ","ok"]]),
+  I("Trát Lệnh Đế Vương",2200,1,{hotro:5,phapsu:2},"Đánh dấu mục tiêu bị khống chế, đồng đội đánh vào sẽ nổ thêm sát thương",
+    [[p=>p.n>=5,0,"","ok"]])
 ];
+
+/* =========================================================
+   LỐI CHƠI SÁNG TẠO
+   Mỗi lối đổi hẳn loại sát thương và vai trò mà bộ máy dùng để chấm điểm,
+   kèm vài món lõi bắt buộc làm nên bản sắc của lối đó.
+   ========================================================= */
+const S = (id,ten,d,r,coc,boot,vi,rui) => ({id,ten,d,r,coc,boot,vi,rui});
+const AP3 = ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Trượng Hư Vô"];
+const STYLES = {
+  "Ashe":[S("ap","AP · bắn chiêu cuối liên tục","AP","phapsu",
+    ["Trát Lệnh Đế Vương","Vọng Âm của Luden","Mũ Phù Thủy Rabadon"],"Giày Đỏ Khai Sáng",
+    "Sức mạnh phép cộng với điểm hồi kỹ năng rút ngắn thời gian chờ Mũi Tên Pha Lê, biến chiêu cuối thành công cụ mở giao tranh gần như lúc nào cũng sẵn, bắn từ đầu bên kia cầu.",
+    "Mất gần hết sát thương đánh thường. Chỉ chọn khi đội đã có người gánh sát thương.")],
+  "Twisted Fate":[S("onhit","AD đòn đánh · cộng dồn Bài Nạp","AD","batu",
+    ["Cuồng Đao Guinsoo","Nanh Nashor","Gươm Suy Vong"],"Giày Cuồng Nộ",
+    "Bài Nạp (E) kích hoạt hiệu ứng đòn đánh, còn Cuồng Đao Guinsoo nhân đôi hiệu ứng đó ở mỗi đòn thứ ba. Ra một tay gánh sát thương dai thay vì dồn một nhịp rồi hết bài.",
+    "Cần thời gian cộng dồn tốc đánh. Dễ bị sát thủ nhảy vào lúc chưa kịp ramp.")],
+  "Kog'Maw":[S("ap","AP · W xé máu tối đa","AP","phapsu",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Cuồng Nộ",
+    "Đòn đánh tăng cường của W gây sát thương phép theo máu tối đa, nên sức mạnh phép ăn thẳng vào tướng trâu.",
+    "Chậm và không có kỹ năng thoát thân — đứng sai chỗ là gục.")],
+  "Tristana":[S("ap","AP · E nổ","AP","phapsu",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Ngọn Lửa Hắc Hóa"],"Giày Cuồng Nộ",
+    "Thuốc Nổ (E) cộng dồn theo đòn đánh và nổ theo sức mạnh phép. Nhảy vào, dán đủ dấu, nổ một phát rồi nhảy ra.",
+    "Hết chiêu E là hết sát thương, đôi co dài rất yếu.")],
+  "Miss Fortune":[S("ap","AP · mưa đạn","AP","phapsu",AP3,"Giày Pháp Sư",
+    "Chiêu cuối và chiêu Q đều ăn sức mạnh phép rất tốt. Ở bản đồ hẹp của Hỗn Loạn, mưa đạn trúng cả đội là chuyện thường.",
+    "Cần đứng yên suốt lúc bắn chiêu cuối — một pha khống chế là mất trắng.")],
+  "Master Yi":[S("ap","AP đòn đánh","AP","dausi",
+    ["Nanh Nashor","Cuồng Đao Guinsoo","Mũ Phù Thủy Rabadon"],"Giày Cuồng Nộ",
+    "Nanh Nashor cộng sát thương phép vào mỗi đòn đánh, nhân với tốc đánh sẵn có của Yi. Xuyên giáp trở nên vô nghĩa với bạn.",
+    "Không có gì chống chịu, chết ngay khi lao vào sai thời điểm.")],
+  "Teemo":[S("onhit","AD đòn đánh · độc cộng dồn","MIX","batu",
+    ["Cuồng Đao Guinsoo","Gươm Suy Vong","Nanh Nashor"],"Giày Cuồng Nộ",
+    "Đòn đánh của Teemo luôn dính độc, nên mọi hiệu ứng đòn đánh đều cộng dồn. Tốc đánh là chỉ số đáng tiền nhất.",
+    "Tầm đánh ngắn, phải đứng khá gần mới ra sát thương.")],
+  "Twitch":[S("ap","AP · E lan cả đội","AP","phapsu",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Cuồng Nộ",
+    "Ủ Bệnh (E) nổ theo sức mạnh phép và lan ra mọi mục tiêu dính dấu. Đứng tàng hình, dán đủ, nổ một lượt.",
+    "Cực mỏng, và bị lộ tàng hình là mất luôn cơ hội.")],
+  "Ezreal":[S("ap","AP · Q bắn không nghỉ","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Ngọn Lửa Hắc Hóa"],"Giày Pháp Sư",
+    "W và R ăn sức mạnh phép mạnh, còn nội tại giảm hồi chiêu khiến bạn bắn liên tục từ khoảng cách an toàn.",
+    "Sát thương lên tướng trâu kém hơn hẳn lối vật lý.")],
+  "Kai'Sa":[S("ap","AP · Q tách đạn","AP","phapsu",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Cuồng Nộ",
+    "Đủ sức mạnh phép thì Q tách thành nhiều tia hơn, dồn hết vào một mục tiêu ở cự ly gần.",
+    "Phải áp sát mới gom đủ tia — rất dễ đổi mạng.")],
+  "Varus":[S("onhit","AD đòn đánh · W cộng dồn","AD","batu",
+    ["Cuồng Đao Guinsoo","Gươm Suy Vong","Nanh Nashor"],"Giày Cuồng Nộ",
+    "Mũi Tên Hắc Ám (W) là hiệu ứng đòn đánh, cộng dồn rồi nổ theo máu tối đa. Hợp để xé đội hình nhiều tướng trâu.",
+    "Bỏ hẳn lối bắn tầm xa quen thuộc, phải đứng trong tầm đánh thường.")],
+  "Shaco":[S("ap","AP · hộp quỷ","AP","phapsu",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Trượng Pha Lê Rylai"],"Giày Pháp Sư",
+    "Hộp quỷ và chiêu cuối đều ăn sức mạnh phép. Ở cầu hẹp, một bãi hộp đặt đúng chỗ đủ khoá cả giao tranh.",
+    "Cần thời gian đặt hộp trước — bị đẩy mạnh là không kịp chuẩn bị.")],
+  "Malphite":[S("ap","AP toàn phần · một cú chiêu cuối","AP","phapsu",AP3,"Giày Pháp Sư",
+    "Chiêu cuối ăn sức mạnh phép rất nặng. Bỏ hết đồ thủ để đổi lấy một cú mở giao tranh xoá sổ đội địch.",
+    "Không còn chút chống chịu nào — vào hụt là gục ngay, và bạn chỉ có một cơ hội mỗi lần hồi chiêu.")],
+  "Amumu":[S("ap","AP toàn phần","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Pháp Sư",
+    "Nội tại đốt và chiêu cuối trói cả đội đều ăn sức mạnh phép. Trói xong là đủ sát thương giết luôn thay vì chỉ giữ chân.",
+    "Mất vai trò mở giao tranh an toàn — trói xong thường chết theo.")],
+  "Cho'Gath":[S("ap","AP · Q và W đau như pháp sư","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Mũ Phù Thủy Rabadon","Đồng Hồ Cát Zhonya"],"Giày Pháp Sư",
+    "Q và W có hệ số phép cao, cộng thêm máu cộng dồn từ chiêu cuối nên bạn vẫn dày hơn pháp sư thường.",
+    "Chiêu thức chậm, dễ bị né nếu địch nhiều tướng cơ động.")],
+  "Zac":[S("ap","AP · nảy vào rồi nổ","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Trượng Pha Lê Rylai","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Mọi chiêu của Zac đều có hệ số phép, còn nội tại hồi sinh cho bạn thêm một mạng để đổi.",
+    "Bỏ đồ thủ thì cục hồi sinh rất dễ bị dọn sạch.")],
+  "Nunu & Willump":[S("ap","AP · quả cầu tuyết","AP","phapsu",AP3,"Giày Pháp Sư",
+    "Chiêu cuối và Q đều ăn sức mạnh phép rất mạnh. Ở cầu hẹp thì quả cầu tuyết gần như không né được.",
+    "Chiêu cuối phải đứng yên để tích — cần đồng đội giữ chân giúp.")],
+  "Nautilus":[S("ap","AP · móc xong là giết","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Trượng Pha Lê Rylai","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Chuỗi khống chế của Nautilus vốn đã chắc chắn trúng, thêm sức mạnh phép là đủ giết luôn mục tiêu bị móc.",
+    "Mất vai trò mở giao tranh chịu đòn cho đội.")],
+  "Maokai":[S("ap","AP · mầm cây nổ","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Trượng Pha Lê Rylai","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Mầm cây và Q ăn sức mạnh phép, còn nội tại vẫn hồi máu cho bạn nên không quá mỏng.",
+    "Sát thương ra chậm, không xử lý được tướng lao vào nhanh.")],
+  "Blitzcrank":[S("ap","AP · móc là xoá sổ","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Đồng Hồ Cát Zhonya"],"Giày Pháp Sư",
+    "Chuỗi móc – hất – chiêu cuối đều có hệ số phép. Móc trúng một người là người đó không kịp làm gì.",
+    "Móc trượt thì bạn không còn gì để đóng góp cho tới lượt hồi chiêu sau.")],
+  "Thresh":[S("ap","AP · sát thương thật sự","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Ngọn Lửa Hắc Hóa"],"Giày Pháp Sư",
+    "Q, E và chiêu cuối đều có hệ số phép, còn giáp cộng dồn từ nội tại vẫn tự lớn theo thời gian.",
+    "Đội mất một người đỡ đòn và một nguồn lá chắn quan trọng.")],
+  "Sona":[S("ap","AP · đánh thay vì đỡ","AP","phapsu",AP3,"Giày Pháp Sư",
+    "Q của Sona bắn liên tục và ăn sức mạnh phép rất tốt. Ở Hỗn Loạn thì bào máu cả đội địch cực nhanh.",
+    "Đội mất nguồn hồi máu chính — chỉ nên chọn khi đội đã có người hồi máu khác.")],
+  "Soraka":[S("ap","AP · bào máu bằng Q","AP","phapsu",
+    ["Vọng Âm của Luden","Mặt Nạ Đọa Đầy Liandry","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Q vừa gây sát thương vừa hồi máu cho chính bạn, nên vẫn trụ được mà lại bào máu địch liên tục.",
+    "W hồi máu cho đồng đội yếu hẳn — đội sẽ mỏng máu hơn nhiều.")],
+  "Lulu":[S("ap","AP · đánh đau","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Trượng Pha Lê Rylai"],"Giày Pháp Sư",
+    "Q xuyên đội hình và Pix bám theo đều ăn sức mạnh phép. Vẫn giữ được chiêu cuối cứu người khi cần.",
+    "Lá chắn và buff cho đồng đội yếu đi rõ rệt.")],
+  "Janna":[S("ap","AP · gió cắt","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Ngọn Lửa Hắc Hóa"],"Giày Pháp Sư",
+    "W bào máu liên tục và Q hất tung vẫn giữ nguyên tác dụng, chỉ là giờ nó giết được người.",
+    "Đội mất lá chắn và cú giải vây bằng chiêu cuối đáng tin.")],
+  "Yuumi":[S("ap","AP · Q bắn xuyên","AP","phapsu",AP3,"Giày Pháp Sư",
+    "Q ăn sức mạnh phép và bắn được từ trong người đồng đội, gần như không có rủi ro.",
+    "Đội mất nguồn hồi máu và tăng tốc — và bạn vẫn không thể tự đứng một mình.")],
+  "Zilean":[S("ap","AP · bom kép","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Đồng Hồ Cát Zhonya"],"Giày Pháp Sư",
+    "Hai quả bom chồng lên nhau vừa choáng vừa nổ theo sức mạnh phép, đủ để dồn chết một mục tiêu mỏng.",
+    "Vẫn nên giữ chiêu cuối hồi sinh — đừng đổi mạng chỉ để ra thêm sát thương.")],
+  "Bard":[S("ap","AP · chuông và Q","AP","phapsu",
+    ["Vọng Âm của Luden","Mũ Phù Thủy Rabadon","Trượng Pha Lê Rylai"],"Giày Pháp Sư",
+    "Chuông nhặt được cộng thẳng sát thương phép vào đòn đánh, lên đồ phép là nhân đôi giá trị công sức đi nhặt.",
+    "Đi nhặt chuông ở Hỗn Loạn rất khó vì bản đồ chỉ có một đường.")],
+  "Kayle":[S("ap","AP · đòn đánh tầm xa","AP","dausi",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Cuồng Nộ",
+    "Từ cấp 16, đòn đánh của Kayle bắn tia lan và ăn sức mạnh phép. Nanh Nashor cộng cả tốc đánh lẫn sát thương phép mỗi đòn.",
+    "Trước cấp 11 rất yếu — phải sống sót qua giai đoạn đầu đã.")],
+  "Shyvana":[S("ap","AP · hình rồng","AP","dausi",
+    ["Nanh Nashor","Mặt Nạ Đọa Đầy Liandry","Mũ Phù Thủy Rabadon"],"Giày Cuồng Nộ",
+    "E và luồng lửa ở hình rồng đều có hệ số phép cao, đánh xuyên cả đội hình đứng chùm.",
+    "Ngoài hình rồng thì sát thương khá thường.")],
+  "Jax":[S("ap","AP đòn đánh","AP","dausi",
+    ["Nanh Nashor","Cuồng Đao Guinsoo","Giáp Tâm Linh"],"Giày Cuồng Nộ",
+    "W của Jax là một đòn đánh tăng cường ăn sức mạnh phép, nhân tiếp với tốc đánh từ Cuồng Đao Guinsoo.",
+    "Yếu hơn lối vật lý khi cần xé tướng trâu.")],
+  "Udyr":[S("ap","AP · gấu và phượng","AP","dausi",
+    ["Nanh Nashor","Mũ Phù Thủy Rabadon","Giáp Tâm Linh"],"Giày Cuồng Nộ",
+    "Dáng Phượng Hoàng đốt diện rộng theo sức mạnh phép, còn Nanh Nashor cộng thêm vào từng đòn đánh.",
+    "Phải đứng giữa đội địch mới ra hết sát thương.")],
+  "Singed":[S("ap","AP · độc dày đặc","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Trượng Pha Lê Rylai","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Vệt độc ăn sức mạnh phép và đốt liên tục — đúng kiểu sát thương mà Mặt Nạ Đọa Đầy Liandry nhân lên.",
+    "Cần máu để chạy vòng vòng; bỏ hết đồ thủ là chạy chưa được bao lâu đã chết.")],
+  "Mordekaiser":[S("ap","AP toàn phần","AP","phapsu",
+    ["Mặt Nạ Đọa Đầy Liandry","Mũ Phù Thủy Rabadon","Trượng Hư Vô"],"Giày Pháp Sư",
+    "Mọi chiêu của Morde đều là sát thương phép, và nội tại vẫn hút máu về theo sát thương gây ra.",
+    "Không có đồ thủ thì chiêu cuối tay đôi trở nên rủi ro.")],
+  "Vladimir":[S("hp","AP máu cao · càng dày càng đau","AP","dausi",
+    ["Trượng Pha Lê Rylai","Trượng Trường Sinh","Mũ Phù Thủy Rabadon"],"Giày Pháp Sư",
+    "Nội tại của Vladimir đổi máu thành sức mạnh phép và ngược lại, nên đồ cộng máu vừa giúp sống vừa cộng sát thương.",
+    "Ra sát thương chậm hơn lối phép thuần — cần giao tranh kéo dài mới lợi.")],
+  "Sett":[S("hp","Máu khổng lồ · cú đấm theo máu","AD","dodon",
+    ["Trái Tim Khổng Thần","Móng Vuốt Sterak","Giáp Máu Warmog"],"Giày Giáp Sắt",
+    "W của Sett tích theo sát thương nhận vào, nên càng nhiều máu càng đấm đau. Trái Tim Khổng Thần cộng máu vĩnh viễn suốt ván.",
+    "Cần thời gian cộng dồn máu — mười phút đầu bạn chỉ là một tướng đỡ đòn bình thường.")]
+};
+const stylesOf = n => STYLES[n] || [];
 
 /* Vai trò của từng món trong lối lên đồ — dùng để ghép món thay thế với đúng ô nó thay */
 const SLOT = {
@@ -631,7 +813,7 @@ const ITEM_SLOT = {
   "Mặt Nạ Vực Thẳm":"chongchiu",
   "Chuông Bảo Hộ Mikael":"giaikhongche", "Lư Hương Sôi Sục":"tienich", "Vương Miện Shurelya":"tienich",
   "Vọng âm Helia":"hoimau", "Bùa Nguyệt Thạch":"hoimau", "Dây Chuyền Chuộc Tội":"hoimau",
-  "Tụ Bão Zeke":"tienich", "Dây Chuyền Iron Solari":"tienich"
+  "Tụ Bão Zeke":"tienich", "Dây Chuyền Iron Solari":"tienich", "Trát Lệnh Đế Vương":"tienich"
 };
 
 /* Vai trò phụ — nhiều món gánh hai việc cùng lúc, dùng khi không tìm được ô cùng vai trò chính */
@@ -668,15 +850,27 @@ function load(){
     const raw = localStorage.getItem(KEY);
     if(raw){
       const s = JSON.parse(raw);
-      if(s && Array.isArray(s.enemies)) return {me:s.me||null, enemies:s.enemies.slice(0,5), demo:false};
+      if(s && Array.isArray(s.enemies)) return {me:s.me||null, enemies:s.enemies.slice(0,5), style:s.style||null, demo:false};
     }
   }catch(e){}
-  return {me:EXAMPLE.me, enemies:EXAMPLE.enemies.slice(), demo:true};
+  return {me:EXAMPLE.me, enemies:EXAMPLE.enemies.slice(), style:null, demo:true};
 }
 function save(){
-  try{ localStorage.setItem(KEY, JSON.stringify({me:state.me, enemies:state.enemies})); }catch(e){}
+  try{ localStorage.setItem(KEY, JSON.stringify({me:state.me, enemies:state.enemies, style:state.style})); }catch(e){}
 }
 const byName = n => CHAMPS.find(c => c.n === n) || null;
+
+/* Lối chơi đang chọn, và tướng sau khi đã áp lối chơi đó */
+function activeStyle(){
+  if(!state.me || !state.style) return null;
+  return stylesOf(state.me).find(s => s.id === state.style) || null;
+}
+function activeChamp(){
+  const c = byName(state.me);
+  if(!c) return null;
+  const st = activeStyle();
+  return st ? {...c, d: st.d, r: st.r} : c;
+}
 
 let active = "e0";
 
@@ -684,7 +878,7 @@ let active = "e0";
    4. ĐỌC ĐỘI HÌNH ĐỊCH
    ========================================================= */
 function profile(){
-  const me = byName(state.me);
+  const me = activeChamp();
   const es = state.enemies.map(byName).filter(Boolean);
   let ad = 0, ap = 0;
   const has = f => es.filter(c => c.f.includes(f)).length;
@@ -722,7 +916,7 @@ function fill(t, p){
   return t.replace(/%(\w+)%/g, (_, k) => p[k]);
 }
 function rank(){
-  const me = byName(state.me);
+  const me = activeChamp();
   if(!me) return [];
   const p = profile();
   const out = [];
@@ -740,8 +934,13 @@ function rank(){
   return out;
 }
 function pickBoots(p){
-  const me = byName(state.me);
+  const me = activeChamp();
   if(!me) return null;
+  const st = activeStyle();
+  if(st && st.boot && !(p.n === 5 && p.cc >= 4)){
+    const b = BOOTS.find(x => x.n === st.boot);
+    if(b) return {...b, why:"Đi kèm lối " + st.ten};
+  }
   if(p.n === 5 && p.cc >= 4) return {...BOOTS[0], why:"Địch có " + p.cc + " nguồn khống chế — rút ngắn thời gian bị trói đáng giá hơn sát thương"};
   if(p.n === 5 && p.dps >= 3 && p.adPct >= 55) return {...BOOTS[1], why:"Địch có " + p.dps + " tướng sống bằng đòn đánh thường"};
   if(p.n === 5 && p.cc >= 3 && p.apPct >= 55) return {...BOOTS[0], why:"Vừa rút ngắn khống chế vừa cộng kháng phép"};
@@ -754,7 +953,7 @@ function pickBoots(p){
 }
 
 function notesFor(p){
-  const me = byName(state.me);
+  const me = activeChamp();
   const out = [];
   if(p.n < 5) return out;
   if(p.heal >= 2) out.push("Địch có " + p.heal + " nguồn hồi máu. Món giảm hồi máu phải nằm trong ba món đầu, đừng để đến món thứ tư — mua muộn là thua nhịp.");
@@ -784,10 +983,28 @@ function renderSlots(){
       '<span class="lbl">Địch ' + (i + 1) + '</span>' +
       '<span class="val' + (c ? '' : ' empty') + '">' + (c ? esc(c.n) : "trống") + '</span></button>';
   }).join("");
-  const meC = state.me ? byName(state.me) : null;
+  const meC = activeChamp();
   $("#v-me").textContent = meC ? meC.n + " · " + ROLE_VN[meC.r] : "chưa chọn";
   $("#v-me").className = "val" + (meC ? "" : " empty");
   document.querySelector('[data-slot="me"]').setAttribute("aria-pressed", active === "me");
+  renderStyles();
+}
+
+function renderStyles(){
+  const row = $("#styleRow");
+  if(!state.me){ row.hidden = true; return; }
+  row.hidden = false;
+  const list = stylesOf(state.me);
+  if(!list.length){
+    $("#styleBtns").innerHTML =
+      '<p class="hint" style="margin:0">' + esc(state.me) + ' chưa có lối sáng tạo trong kho — dùng lối chuẩn. ' +
+      'Những tướng có lối riêng được đánh dấu <span class="mark">◆</span> trong danh sách bên dưới.</p>';
+    return;
+  }
+  const btn = (id, label) =>
+    '<button class="style-btn" type="button" data-style="' + esc(id) + '" aria-pressed="' +
+    ((state.style || "") === id) + '">' + esc(label) + '</button>';
+  $("#styleBtns").innerHTML = btn("", "Chuẩn") + list.map(s => btn(s.id, s.ten)).join("");
 }
 
 function renderChampList(){
@@ -795,8 +1012,10 @@ function renderChampList(){
   const taken = new Set([state.me, ...state.enemies].filter(Boolean));
   const list = CHAMPS.filter(c => !q || c.n.toLowerCase().includes(q)).slice(0, 70);
   $("#champList").innerHTML = list.map(c =>
-    '<button class="champ-btn' + (taken.has(c.n) ? " taken" : "") + '" type="button" data-pick="' + esc(c.n) + '">' +
-    esc(c.n) + '<span class="tag">' + (c.d === "MIX" ? "lai" : c.d) + '</span></button>'
+    '<button class="champ-btn' + (taken.has(c.n) ? " taken" : "") + '" type="button" data-pick="' + esc(c.n) + '"' +
+    (stylesOf(c.n).length ? ' title="Có lối chơi sáng tạo"' : '') + '>' +
+    esc(c.n) + '<span class="tag">' + (c.d === "MIX" ? "lai" : c.d) + '</span>' +
+    (stylesOf(c.n).length ? '<span class="mark">◆</span>' : '') + '</button>'
   ).join("") || '<p class="hint">Không tìm thấy tướng nào khớp.</p>';
 }
 
@@ -831,7 +1050,8 @@ function renderProfile(){
 }
 
 function renderBuild(){
-  const me = state.me ? byName(state.me) : null;
+  const me = activeChamp();
+  const st = activeStyle();
   const flag = $("#buildFlag");
   flag.innerHTML = state.demo ? '<span class="example-flag">Ví dụ mẫu — bấm “Trận mới” để nhập ván của bạn</span>' : "";
 
@@ -842,15 +1062,32 @@ function renderBuild(){
   }
   const p = profile();
   const ranked = rank();
-  const core = ranked.slice(0, 5).sort((a, b) => a.o - b.o || b.score - a.score);
+
+  // Lối sáng tạo có vài món lõi bắt buộc — chúng chiếm chỗ trước, phần còn lại do bộ máy chấm
+  const anchors = st
+    ? st.coc.map(n => ITEMS.find(i => i.n === n)).filter(Boolean)
+        .map(it => ({...it, score: 999, anchor: true, why: [{t:"món lõi của lối này", k:"must"}]}))
+    : [];
+  const rest = ranked.filter(it => !anchors.some(a => a.n === it.n))
+                     .slice(0, Math.max(0, 5 - anchors.length))
+                     .sort((a, b) => a.o - b.o || b.score - a.score);
+  const core = st ? anchors.concat(rest) : rest;
   const boots = pickBoots(p);
 
   let html = '<h3>' + esc(me.n) + ' <span style="font-weight:400;color:var(--muted)">· ' + ROLE_VN[me.r] +
              ' · ' + (me.d === "MIX" ? "sát thương lai" : me.d === "AD" ? "sát thương vật lý" : "sát thương phép") + '</span></h3>';
 
+  if(st){
+    html += '<div class="style-note">' +
+      '<div class="style-note-t">Lối sáng tạo · ' + esc(st.ten) + '</div>' +
+      '<p>' + esc(st.vi) + '</p>' +
+      '<p class="risk"><b>Đánh đổi:</b> ' + esc(st.rui) + '</p>' +
+    '</div>';
+  }
+
   html += core.map((it, i) =>
     '<div class="step">' +
-      '<div class="step-n">' + (i + 1) + '</div>' +
+      '<div class="step-n' + (it.anchor ? " core" : "") + '">' + (i + 1) + '</div>' +
       '<div class="step-body">' +
         '<div class="step-name">' + esc(it.n) + '</div>' +
         '<div class="step-meta">' + it.g.toLocaleString("vi-VN") + ' vàng · ' + esc(it.desc) + '</div>' +
@@ -871,14 +1108,15 @@ function renderBuild(){
 
   // Ghép mỗi món thay thế với món yếu nhất cùng vai trò trong lối lên đồ chính,
   // rồi chỉ giữ 3 phương án tốt nhất và mỗi phương án thay một món khác nhau.
-  const coreRanked = core.slice().sort((a, b) => a.score - b.score);
+  const coreRanked = core.filter(c => !c.anchor).sort((a, b) => a.score - b.score);
   const findTarget = it => {
     const slot = ITEM_SLOT[it.n], slot2 = ITEM_SLOT2[it.n];
     return coreRanked.find(c => ITEM_SLOT[c.n] === slot)
         || (slot2 ? coreRanked.find(c => ITEM_SLOT[c.n] === slot2 || ITEM_SLOT2[c.n] === slot) : null)
         || null;
   };
-  const pool = ranked.slice(5, 16).map(it => ({it, target: findTarget(it)}));
+  const pool = ranked.filter(it => !core.some(c => c.n === it.n)).slice(0, 11)
+                     .map(it => ({it, target: findTarget(it)}));
   const used = new Set(), alts = [];
   for(const c of pool){                                   // ưu tiên: thay được một món cụ thể
     if(alts.length === 3) break;
@@ -918,6 +1156,7 @@ function assign(name){
   state.demo = false;
   if(active === "me"){
     state.me = name;
+    state.style = null;                       // đổi tướng thì quay về lối chuẩn
     const next = state.enemies.findIndex(x => !x);
     active = next === -1 ? "me" : "e" + next;
   } else {
@@ -936,6 +1175,13 @@ document.addEventListener("click", e => {
   if(slot){ setActive(slot.dataset.slot); $("#search").focus(); return; }
   const pick = e.target.closest("[data-pick]");
   if(pick){ assign(pick.dataset.pick); return; }
+  const sty = e.target.closest("[data-style]");
+  if(sty){
+    state.style = sty.dataset.style || null;
+    state.demo = false;
+    save(); renderAll();
+    return;
+  }
 });
 
 $("#search").addEventListener("input", renderChampList);
